@@ -1,6 +1,8 @@
 import React, { useState, MouseEventHandler, CSSProperties, ReactNode} from 'react';
 import {Book} from '../model/book';
 import {Portal} from './Portal';
+
+
 // import { useToggle } from 'ahooks';
 
 interface IModalOverlayProps {
@@ -29,29 +31,30 @@ const modalStyles: CSSProperties = {
 };
 
 export const Modal: React.FC<{ children: ReactNode }> = (props: { children: ReactNode }) => (
-  <Portal>
+  <Portal visible={false}>
     <div style={modalStyles}>{props.children}</div>
   </Portal>
 );
 
-const EditBookModal: React.FC<Book & {modalStatus: boolean, title: string}> = (param: Book & {modalStatus: boolean,  title: string}) => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(param.modalStatus);
 
+
+const EditBookModal: React.FC<{children: ReactNode} & {setOpen: Function, title: string}> = (param: {children: ReactNode} & {setOpen: Function,  title: string}) => {
+  const [open, setOpen] = useState(false);
   const openModal = () => {
-    setIsModalOpen(true);
+    param.setOpen(true);
   };
 
   const closeModal = () => {
     console.log("===========");
-    console.log(isModalOpen);
-    setIsModalOpen(false);
+    // console.log(isModalOpen);
+    param.setOpen(false);
   };
 
   return (
     <div>
       <button onClick={openModal}>{param.title}</button>
 
-      {isModalOpen && (
+      
         <Modal>
             <ModalOverlay onClick={closeModal}></ModalOverlay>
             <div>
@@ -60,11 +63,11 @@ const EditBookModal: React.FC<Book & {modalStatus: boolean, title: string}> = (p
               <button onClick={(e)=>{console.log(e); closeModal()}}>Close</button>
             </div>
             <div className="modal-content">
-              <p>This is the content of the modal.</p>
+              {param.children}
             </div>
           </div>
         </Modal>
-      )}
+      
     </div>
   );
 };

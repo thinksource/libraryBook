@@ -1,0 +1,16 @@
+.modal-operator-close, .modal-operator-confirm {
+  width: 50%;
+  border: none;
+  outline: none;
+  height: 50px;
+  line-height: 50px;
+  opacity: 1;
+  color: #fff;
+  background: rgb(247, 32, 32);
+  cursor: pointer;
+}
+
+.modal-operator-close:active, .modal-operator-confirm:active {
+  opacity: .6;
+  transition: opacity .3s;
+}

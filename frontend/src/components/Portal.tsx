@@ -1,22 +1,24 @@
-import React, {useRef, useEffect,  ReactNode} from 'react'
-import {createPortal} from 'react-dom';
+import React, {ReactNode, useEffect, useRef} from 'react'
+import { createPortal } from 'react-dom';
 
-export const Portal: React.FC<{ children: ReactNode }> = (props: { children: ReactNode }) => {
+export const Portal: React.FC<{children: ReactNode}> = ({ children }) => {
+    let containerRef = useRef<HTMLDivElement | null>(document.querySelector("#root"));
 
-    let containerRef = useRef<HTMLDivElement | null>(null);
-  
     if (!containerRef.current) {
-      containerRef.current = document.createElement("div");
-      document.body.appendChild(containerRef.current);
+        containerRef.current = document.createElement("div");
+        document.body.appendChild(containerRef.current);
     }
   
-    useEffect(() => {
-      return function cleanup() {
-        if (containerRef.current) {
-          document.body.removeChild(containerRef.current);
-        }
-      };
-    }, []);
-  
-    return createPortal(props.children, containerRef.current);
+    // 当组件销毁时，移除 container 节点
+    // useEffect(() => {
+    //   return function cleanup() {
+
+    //     if (containerRef.current) {
+    //       containerRef.current.remove();
+    //     }
+    //   };
+    // }, []);
+
+    return createPortal(children, containerRef.current);
   };
+  
