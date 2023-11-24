@@ -1,7 +1,6 @@
-import React, { useState, useContext, CSSProperties, ReactNode, useEffect, ChangeEvent, useRef} from 'react';
+import React, { useState, useEffect, ChangeEvent} from 'react';
 import styled from 'styled-components';
 import { useglobalContext } from './GlobalContext';
-import {Book} from "../model/book"
 const Cell= styled.div`
     width: 50%;
     position: relative;

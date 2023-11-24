@@ -24,9 +24,7 @@ export const GlobalProvider: React.FC<MyProviderProps> = (props: MyProviderProps
   
 
   const updatecurrentBook = (book: Partial<Book>) => {
-    // console.log(book)
-    // console.log("=======do update book=========")
-    // currentBook={...currentBook, ...book}
+
     setcurrentBook({...currentBook, ...book})
     console.log(currentBook)
   };
