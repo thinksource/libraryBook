@@ -1,6 +1,6 @@
-import React, { useState, useContext, CSSProperties, ReactNode, useEffect, ChangeEvent} from 'react';
+import React, { useState, useContext, CSSProperties, ReactNode, useEffect, ChangeEvent, useRef} from 'react';
 import styled from 'styled-components';
-import { Global, GlobalContextType } from '../environment';
+import { useglobalContext } from './GlobalContext';
 import {Book} from "../model/book"
 const Cell= styled.div`
     width: 50%;
@@ -11,20 +11,12 @@ width: 50%;
 position: relative;
 left: 50%;
 `
-function Bookdetail(props:{setError: (error: string)=>void, setcurrentBook: (book: Partial<Book>)=>void;}){
-    const context=useContext(Global);
-    const [inputValue, setInputValue] = useState('ttttt');
-    let currentBook:Partial<Book>=context?context.currentBook:{}
-    let error = context?.error
-    let setError = context?.setError
-    let setcurrentBook=props.setcurrentBook
-    // console.log(props)
-    // console.log(currentbook)
+function Bookdetail(){
+    const {error, setError, currentBook, setcurrentBook} = useglobalContext();
+    const [name, setName] = useState(currentBook.name?currentBook.name:"");
+    const [author, setAuthor] = useState(currentBook.author?currentBook.author:"");
+    const [price, setPrice] = useState(currentBook.price?currentBook.price:0);
 
-    // useLayoutEffect(()=>{
-    //     console.log("==layouteffect")
-    //     currentbook=props
-    // },[]);
 
     useEffect(()=>{
         console.log("=====effect======");
@@ -34,17 +26,21 @@ function Bookdetail(props:{setError: (error: string)=>void, setcurrentBook: (boo
         }else{
             document.getElementById("avaliable")?.setAttribute('checked', 'checked');
         }
+
     }, []);
 
     // function changeContext(e: ChangeEvent<HTMLElement>){
     //     console.log(e.currentTarget.localName);
     // }
-    function changeTarget(e:ChangeEvent<HTMLInputElement>){
+    function changeTarget(e:ChangeEvent<HTMLInputElement>, setfun: Function){
+        
         console.log(e);
         const key = e.target.name;
+        setfun(e.target.value);
         console.log({[key]: e.target.value})
-        console.log({...currentBook, ...{[key]: e.target.value}})
-        setcurrentBook({...currentBook, ...{[key]: e.target.value}})
+        const update_value={...currentBook, ...{[key]: e.target.value}}
+        console.log(update_value)
+        setcurrentBook(update_value)
         console.log(currentBook)
     }
 
@@ -52,24 +48,14 @@ function Bookdetail(props:{setError: (error: string)=>void, setcurrentBook: (boo
         setcurrentBook({...currentBook, borrowStatus: status})
     }
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        // Get the value from the input event
-        const newValue: string = event.target.value;
-    
-        // Update the state with the new value
-        setInputValue(newValue);
-    
-        // Output the changed string (you can replace this with any logic you need)
-        console.log('Changed String:', newValue);
-      };
     return (
             <React.Fragment>
             <Cell>Name:</Cell>
-            <CellInput><input onChange={changeTarget} type="text" name="name" defaultValue={currentBook.name} /></CellInput>
+            <CellInput><input onChange={(e)=>changeTarget(e, setName)} type="text" name="name" value={name}/></CellInput>
             <Cell>Author:</Cell>
-            <CellInput><input onChange={changeTarget}type="text" name="author" defaultValue={currentBook.author} /></CellInput>
+            <CellInput><input onChange={(e)=>changeTarget(e, setAuthor)} type="text" name="author" value={author}/></CellInput>
             <Cell>price:</Cell>
-            <CellInput><input onChange={changeTarget} type="number" name="price" defaultValue={currentBook.price} step='0.01' placeholder='0.00'/></CellInput>
+            <CellInput><input onChange={(e)=>changeTarget(e, setPrice)} type="number" name="price"  step='0.01' placeholder='0.00' value={price}/></CellInput>
             <Cell>Status:</Cell>
             <CellInput>
             <div style={{display: "inline-flex"}}>  

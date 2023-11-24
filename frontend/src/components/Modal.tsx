@@ -2,7 +2,9 @@ import { useState, ReactNode, useContext, useRef} from 'react'
 import './Modal.css'
 import { Portal } from './Portal'
 import styled from "styled-components";
-import {Global, site} from "../environment"
+import { site} from "../environment"
+import { GlobalProvider} from './GlobalContext';
+import { Book } from '../model/book';
 const ModalContainer = styled.div`
   position: fixed;
   background-color: grey;
@@ -59,67 +61,63 @@ const Modaloperator=styled.div`
 
 
 
-function Modal(props: {children: ReactNode, title: string, buttonTxt: string, url: string, method: string, book_id: number}) {
+function Modal(props: {children: ReactNode, title: string, buttonTxt: string, url: string, method: string, book: Partial<Book>}) {
   const [visible, setVisible] = useState(false);
-  let Globalcontext=useContext(Global);
+  // const setError=props.setError
   const formRef = useRef(null);
+  console.log(props.book)
+  // if(!props.book){
+  //   setcurrentBook({})
+  // }else{
+  //   setcurrentBook(props.book)
+  // }
   function close(){
     setVisible(false);
   }
 
-  async function update_book(id: number, content: any){
-    fetch(site+`books/${id}`, { method: "PUT", body: JSON.stringify(content),  headers: new Headers({
-      'Content-Type': 'application/json'
-    })})
-    .then(result=>{
-      if(result.status==200){
-        return true;
-      }else{
-        let feed= result.json();
-        // error=useContext(JSON.stringify(feed));
-        return false;
+  async function update_book(url: string, data: any){
+    fetch(url, {method:props.method, body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': 'application/json'})
+    }).then((response)=>{
+    if(!response.ok){
+      const result = response.json()
+    }else{
+      return response.json()
+    }
+    }).then(result=>{
+      if(result){
+        console.log("=======finish updata=======")
+        location.reload()
       }
     })
   }
-  async function create_book(content: any){
-    fetch(site+`books/`, { method: "POST", body: JSON.stringify(content),  headers: new Headers({
+  async function create_book(url: string, data: any){
+    fetch(site+`books/`, { method: "POST", body: JSON.stringify(data),  headers: new Headers({
       'Content-Type': 'application/json'
     })})
     .then(result=>{
       if(result.status==200){
+        location.reload();
         return true;
       }else{
         let feed= result.json();
-        // error=useContext(JSON.stringify(feed));
+        location.reload();
         return false;
       }
     })
   }
   async function confirm(){
-    // if(props.book_id>0){
-    //   update_book(props.book_id, Mycontext.currentbook);
-    // }else if(props.book_id==0){
-    //   create_book(Mycontext.currentbook);
-    // }
-    const form = formRef.current?formRef.current:undefined;
+
+    const form = document.getElementById("myform") as HTMLFormElement;
     const formData = new FormData(form);
-    console.log("=======Modal=========")
-    console.log(Globalcontext?.currentBook);
-    console.log(formData)
-    fetch(props.url+props.book_id+"/", {method:props.method, body: JSON.stringify(formData),
-        headers: new Headers({'Content-Type': 'application/json'})
-      }).then((response)=>{
-      if(!response.ok){
-        const result = response.json()
-        Globalcontext?.setError(JSON.stringify(result));
-      }else{
-        return response.json()
-      }
-      }).then(result=>{
-        if(result){
-          Globalcontext?.setcurrentBook(result);
-        }
-      })
+
+    const data = Object.fromEntries(formData.entries());
+    if(props.book.id && props.book.id>0){
+
+      update_book(props.url+props.book.id+"/", data);
+    }else{
+      create_book(props.url, data);
+    }
     close()
   }
   return (
@@ -132,15 +130,17 @@ function Modal(props: {children: ReactNode, title: string, buttonTxt: string, ur
               <ModalTitle>{props.title}
                 <ModalClose onClick={close}>X</ModalClose>
               </ModalTitle>
-              <form  ref={formRef}>
-                <fieldset>
-              <ModalContent>{props.children}</ModalContent>
-              <Modaloperator>
-                <button className="modal-operator-close" onClick={close}>Cancel</button>
-                <button className="modal-operator-confirm" onClick={confirm}>Confirm</button>
-              </Modaloperator>
-              </fieldset>
-            </form>
+              <GlobalProvider bookprovider={props.book}>
+                <form  ref={formRef} id="myform">
+                  <fieldset>
+                <ModalContent>{props.children}</ModalContent>
+                <Modaloperator>
+                  <button className="modal-operator-close" onClick={close}>Cancel</button>
+                  <button className="modal-operator-confirm" onClick={confirm}>Confirm</button>
+                </Modaloperator>
+                </fieldset>
+              </form>
+            </GlobalProvider>
               </ModalDialog> 
             </ModalContainer>
           </Portal>

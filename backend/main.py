@@ -120,12 +120,12 @@ async def update_book(id: int, book: BookUpdate):
         session.refresh(db_book)
         return db_book
 
-@app.delete("/books/{book_id}")
-def delete_book(book_id: int):
+@app.delete("/books/{id}")
+async def delete_book(id: int):
     with Session(engine) as session:
-        book_db = session.get(Book, book_id)
-        if not book_db:
+        db_book = session.get(Book, id)
+        if not db_book:
             raise HTTPException(status_code=404, detail="Book not found")
-        session.delete(book_db)
+        session.delete(db_book)
         session.commit()
         return {"action": True}

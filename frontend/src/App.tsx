@@ -7,13 +7,12 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import {Book} from "./model/book"
 import book from "./model/book"
 import styled from "styled-components";
-import {Global, site,  GlobalContextType} from "./environment";
+import { site} from "./environment";
 // import './components/EditBookModal'
 
 import Modal from './components/Modal'
 import Bookdetail from './components/Bookdetail';
-
-
+import { GlobalProvider, useglobalContext} from './components/GlobalContext';
 
 
 const Top = styled.div`
@@ -34,14 +33,8 @@ function BorrowStatus(param: {data: Book}){
 function App() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [rowData, setrowData] = useState([]);
-  let [error, setError] = useState("");
-  let [currentBook, setcurrentBook]= useState<Partial<Book>>({})
-  // const contextValue: GlobalContextType= {
-  //   error,
-  //   currentBook,
-  //   setError,
-  //   setcurrentBook,
-  // };
+  const [error, setError] = useState('');
+
   async function update_book(id: number, content: any){
     fetch(site+`books/${id}`, { method: "PUT", body: JSON.stringify(content),  headers: new Headers({
       'Content-Type': 'application/json'
@@ -69,24 +62,38 @@ function App() {
     
   }
 
-
+  async function deleteBook(data: Book){
+    const confirmed = window.confirm(`Are you sure to delete book (${data.id} ${data.name})?`);
+    if(confirmed){
+      fetch(site+`books/${data.id}`, { method: "DELETE",  headers: new Headers({
+        'Content-Type': 'application/json'
+      })}).then(response=>{
+        if(response.ok){
+          location.reload()
+        }else{
+          let  feed = response.json()
+          console.log(feed)
+        }
+      })
+    }
+  }
 
 
   function ActionRenderer(param:  {data: Book}) {
+    // const {currentBook, setcurrentBook} = useglobalContext();
     let borrowString="Borrowed"
     if(param.data.borrowStatus){
       borrowString="Return"
     }else{
       borrowString="Borrow"
     }
+    console.log(param.data.id)
     return (
         <p className="my-renderer">
-            <Global.Provider value={{error, currentBook: param.data, setError, setcurrentBook}}>
-            <Modal title="Edit book" buttonTxt='Edit' url={site+"books/"} method="put" book_id={param.data.id}>
-              <Bookdetail setcurrentBook={setcurrentBook} setError={setError}></Bookdetail>
+            <Modal title="Edit book" buttonTxt='Edit' url={site+"books/"} method="put" book={param.data}>
+              <Bookdetail ></Bookdetail>
             </Modal>
-            </Global.Provider>
-            <button>Del</button>
+            <button onClick={(e)=>{deleteBook(param.data)}}>Del</button>
             <button onClick={()=>{
               changestatus(param.data, param.data.borrowStatus);
               param.data.borrowStatus=!param.data.borrowStatus}}>{borrowString}</button>
@@ -119,12 +126,11 @@ function App() {
       (<Top>{error}</Top>)}
       <h1>library management</h1>
       <div>
-      <Global.Provider value={{error, currentBook, setError, setcurrentBook}}>
-      <Modal title="Add new book" buttonTxt='new book' url={site+"books/"} method="post" book_id={0}>
-        <>here is the book to added
-        </>
+      
+      <Modal title="Add new book" buttonTxt='new book' url={site+"books/"} method="post" book={{}}>
+          <Bookdetail ></Bookdetail>
       </Modal>
-      </Global.Provider>
+      
       </div>
       <div style={{ height: 400, width: 1050 }}>
       <AgGridReact rowData={rowData} columnDefs={columnDefs}  rowHeight={50}></AgGridReact>
