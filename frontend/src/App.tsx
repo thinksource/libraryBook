@@ -30,7 +30,7 @@ function BorrowStatus(param: {data: Book}){
 }
 
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [rowData, setrowData] = useState([]);
   const [error, setError] = useState('');
 
@@ -89,7 +89,7 @@ function App() {
     console.log(param.data.id)
     return (
         <p className="my-renderer">
-            <Modal title="Edit book" buttonTxt='Edit' url={site+"books/"} method="put" book={param.data}>
+            <Modal title="Edit book" buttonTxt='Edit' url={site+"books/"+param.data.id} method="put" book={param.data}>
               <Bookdetail ></Bookdetail>
             </Modal>
             <button onClick={(e)=>{deleteBook(param.data)}}>Del</button>

@@ -12,13 +12,9 @@ const mockedContext = {
 
 const newName = "new book"
 
-// describe("ttt",()=>{
-//     test("test demo", ()=>{
-//         expect("1").toBe
-//     })
-// })
 
-describe("", ()=>{
+
+describe("Book detail component test", ()=>{
     test("renders component with mocked context", ()=>{
         const bookdetail= render(
             <GlobalProvider bookprovider={mockedContext}>

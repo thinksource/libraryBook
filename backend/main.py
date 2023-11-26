@@ -1,5 +1,5 @@
-from typing import Union, List, Optional
-
+from typing import Union, List, Optional, Sequence
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +23,7 @@ class Book(SQLModel, table=True):
     price: float
     borrowStatus: bool
 
-def create_books():
+async def create_books():
     book_1 = Book(id=1, name="Book1", author="Sherwin", price=5.40, borrowStatus=False)
     book_2 = Book(id=2, name="Test Book", author="My Author", price=7.30, borrowStatus=True)
     book_3 = Book(id=3, name="Do government", author="Test my Author", price=1.40, borrowStatus=True)
@@ -35,10 +35,11 @@ def create_books():
 
         session.commit()
 
-def create_db():
+async def create_db():
     SQLModel.metadata.create_all(engine)
 
 
+start_list = [create_db, create_books]
 
 
 class BookUpdate(SQLModel):
@@ -49,7 +50,7 @@ class BookUpdate(SQLModel):
 
 
 
-app = FastAPI()
+app = FastAPI(on_startup=start_list)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -58,24 +59,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     await create_db()
+#     print("==============create db finished===============")
+#     await create_book()
+#     yield
 
-@app.on_event("startup")
-def on_startup():
-    create_db()
-    create_books()
+# @app.on_event("startup")
+# async def on_startup():
+#     await create_db()
+#     await create_books()
 
-@app.on_event("shutdown")
-def shutdown_event():
-    pass
+# @app.on_event("shutdown")
+# def shutdown_event():
+#     pass
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
 
 @app.get("/books/")
 async def read_books()->List[Book]:
@@ -110,9 +112,6 @@ async def update_book(id: int, book: BookUpdate):
         if not db_book:
             raise HTTPException(status_code=404, detail="Book not found")
         book_data = jsonable_encoder(book, exclude_none=True)
-        print(book)
-        print("===========")
-        print(book_data)
         for key, value in book_data.items():
             setattr(db_book, key, value)
         session.add(db_book)

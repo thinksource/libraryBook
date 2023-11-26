@@ -4,7 +4,7 @@ import { Portal } from './Portal'
 import styled from "styled-components";
 import { site } from "../environment"
 import { GlobalProvider } from './GlobalContext';
-import { Book } from '../model/book';
+import {  IDObjet } from '../model/book';
 const ModalContainer = styled.div`
     position: fixed;
     background-color: grey;
@@ -25,7 +25,7 @@ const ModalDialog = styled.div`
     z-Index: 1001;
     min-height: 200;
 `
-const ModalTitle = styled.div`
+const ModalTitle = styled.h3`
     width: 100%;
     height: 50px;
     line-height: 50px;
@@ -50,7 +50,7 @@ const Modaloperator = styled.div`
 `
 
 
-function Modal(props: { children: ReactNode, title: string, buttonTxt: string, url: string, method: string, book: Partial<Book> }) {
+function Modal(props: { children: ReactNode, title: string, buttonTxt: string, url: string, method: string, book: Partial<IDObjet>}) {
   const [visible, setVisible] = useState(false);
   // const setError=props.setError
   const formRef = useRef(null);
@@ -104,12 +104,13 @@ function Modal(props: { children: ReactNode, title: string, buttonTxt: string, u
     const formData = new FormData(form);
 
     const data = Object.fromEntries(formData.entries());
-    if (props.book.id && props.book.id > 0) {
+    // if (props.book.id && props.book.id > 0) {
 
-      update_book(props.url + props.book.id + "/", data);
-    } else {
-      create_book(props.url, data);
-    }
+    //   update_book(props.url + props.book.id + "/", data);
+    // } else {
+    //   create_book(props.url, data);
+    // }
+    update_book(props.url, data)
     close()
   }
   return (

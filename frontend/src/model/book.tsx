@@ -1,5 +1,8 @@
-interface Book {
+interface IDObjet{
     id: number,
+}
+
+interface Book  extends IDObjet{
     name: string,
     author: string,
     price: number,
@@ -13,4 +16,4 @@ let testbooks: Book[]=[
   ]
 let emptybook={id: 0, name:"", author:"", price:0, borrowStatus: false}
 export default {testbooks, emptybook}
-export type { Book}
+export type { Book, IDObjet}
