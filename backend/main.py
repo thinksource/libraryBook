@@ -36,7 +36,7 @@ async def create_books():
         session.commit()
 
 async def create_db():
-    SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(engine )
 
 
 start_list = [create_db, create_books]
